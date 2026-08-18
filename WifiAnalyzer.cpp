@@ -36,6 +36,17 @@ int main()
 
 	std::cout << "WLAN interfaces enumerated successfully!" << std::endl;
 
+	std::cout << "Number of WLAN interfaces found: " << pInterfaceList->dwNumberOfItems << std::endl;
+
+	std::wcout << "WLAN interface: " << pInterfaceList->InterfaceInfo[0].strInterfaceDescription << std::endl;
+
+	GUID interfaceGuid = pInterfaceList->InterfaceInfo[0].InterfaceGuid;
+
+	result = WlanScan(wlanhandle, &interfaceGuid, nullptr, nullptr, nullptr);
+
+
+
+
 	if (pInterfaceList != nullptr) {
 		WlanFreeMemory(pInterfaceList);
 		pInterfaceList = nullptr;
