@@ -44,9 +44,29 @@ int main()
 
 	result = WlanScan(wlanhandle, &interfaceGuid, nullptr, nullptr, nullptr);
 
+	if (result != ERROR_SUCCESS) {
+		std::cout << "Error: Failed to start WLAN scan. Code: "
+			<< result << std::endl;
+		return 1;
+	}
 
+	std::cout << "WLAN scan started successfully!" << std::endl;
+	
+	DWORD dwflags = 0;
+	PWLAN_AVAILABLE_NETWORK_LIST pNetworkList = nullptr;
 
+	result = WlanGetAvailableNetworkList(wlanhandle, &interfaceGuid, dwflags, nullptr, &pNetworkList);
 
+	if (result != ERROR_SUCCESS) {
+		std::cout << "Error: Not found any available networks. Code: "
+			<< result << std::endl;
+		return 1;
+	}
+	std::cout << "Number of networks found: "
+		<< pNetworkList->dwNumberOfItems
+		<< std::endl;
+	std::cout << "Available WLAN networks retrieved successfully!" << std::endl;
+	
 	if (pInterfaceList != nullptr) {
 		WlanFreeMemory(pInterfaceList);
 		pInterfaceList = nullptr;
