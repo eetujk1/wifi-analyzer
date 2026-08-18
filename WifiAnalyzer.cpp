@@ -42,7 +42,11 @@ int main()
 
 	GUID interfaceGuid = pInterfaceList->InterfaceInfo[0].InterfaceGuid;
 
-	result = WlanScan(wlanhandle, &interfaceGuid, nullptr, nullptr, nullptr);
+	result = WlanScan(wlanhandle, 
+		&interfaceGuid, 
+		nullptr, 
+		nullptr, 
+		nullptr);
 
 	if (result != ERROR_SUCCESS) {
 		std::cout << "Error: Failed to start WLAN scan. Code: "
@@ -55,7 +59,11 @@ int main()
 	DWORD dwflags = 0;
 	PWLAN_AVAILABLE_NETWORK_LIST pNetworkList = nullptr;
 
-	result = WlanGetAvailableNetworkList(wlanhandle, &interfaceGuid, dwflags, nullptr, &pNetworkList);
+	result = WlanGetAvailableNetworkList(wlanhandle, 
+		&interfaceGuid, 
+		dwflags, 
+		nullptr, 
+		&pNetworkList);
 
 	if (result != ERROR_SUCCESS) {
 		std::cout << "Error: Not found any available networks. Code: "
@@ -66,6 +74,17 @@ int main()
 		<< pNetworkList->dwNumberOfItems
 		<< std::endl;
 	std::cout << "Available WLAN networks retrieved successfully!" << std::endl;
+
+	for (int i = 0; i < pNetworkList->dwNumberOfItems; i++) {
+		WLAN_AVAILABLE_NETWORK network = pNetworkList->Network[i];
+
+		std::cout << "Signal quality: " << network.wlanSignalQuality << std::endl;
+		std::cout << "SSID Length: " << network.dot11Ssid.uSSIDLength << std::endl;
+		for (int j = 0; j < network.dot11Ssid.uSSIDLength; j++) {
+			std::cout << network.dot11Ssid.ucSSID[j];
+
+		}
+ 	}
 	
 	if (pInterfaceList != nullptr) {
 		WlanFreeMemory(pInterfaceList);
@@ -75,6 +94,11 @@ int main()
 	if (wlanhandle != nullptr) {
 		WlanCloseHandle(wlanhandle, nullptr);
 		wlanhandle = nullptr;
+	}
+
+	if (pNetworkList != nullptr) {
+		WlanFreeMemory(pNetworkList);
+		pNetworkList = nullptr;
 	}
 
 	return 0;
