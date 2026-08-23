@@ -35,17 +35,16 @@ int main()
 	}
 
 	std::cout << "WLAN interfaces enumerated successfully!" << std::endl;
-
 	std::cout << "Number of WLAN interfaces found: " << pInterfaceList->dwNumberOfItems << std::endl;
-
 	std::wcout << "WLAN interface: " << pInterfaceList->InterfaceInfo[0].strInterfaceDescription << std::endl;
 
 	GUID interfaceGuid = pInterfaceList->InterfaceInfo[0].InterfaceGuid;
 
-	result = WlanScan(wlanhandle, 
-		&interfaceGuid, 
-		nullptr, 
-		nullptr, 
+	result = WlanScan(
+		wlanhandle,
+		&interfaceGuid,
+		nullptr,
+		nullptr,
 		nullptr);
 
 	if (result != ERROR_SUCCESS) {
@@ -55,14 +54,15 @@ int main()
 	}
 
 	std::cout << "WLAN scan started successfully!" << std::endl;
-	
+
 	DWORD dwflags = 0;
 	PWLAN_AVAILABLE_NETWORK_LIST pNetworkList = nullptr;
 
-	result = WlanGetAvailableNetworkList(wlanhandle, 
-		&interfaceGuid, 
-		dwflags, 
-		nullptr, 
+	result = WlanGetAvailableNetworkList(
+		wlanhandle,
+		&interfaceGuid,
+		dwflags,
+		nullptr,
 		&pNetworkList);
 
 	if (result != ERROR_SUCCESS) {
@@ -70,35 +70,67 @@ int main()
 			<< result << std::endl;
 		return 1;
 	}
+
 	std::cout << "Number of networks found: "
 		<< pNetworkList->dwNumberOfItems
 		<< std::endl;
-	std::cout << "Available WLAN networks retrieved successfully!" << std::endl;
+	std::cout << "Available WLAN networks retrieved successfully!\n" << std::endl;
 
-	for (int i = 0; i < pNetworkList->dwNumberOfItems; i++) {
-		WLAN_AVAILABLE_NETWORK network = pNetworkList->Network[i];
+	PWLAN_BSS_LIST pBssList = nullptr;
 
-		std::cout << "Signal quality: " << network.wlanSignalQuality << std::endl;
-		std::cout << "SSID Length: " << network.dot11Ssid.uSSIDLength << std::endl;
-		for (int j = 0; j < network.dot11Ssid.uSSIDLength; j++) {
-			std::cout << network.dot11Ssid.ucSSID[j];
+	result = WlanGetNetworkBssList(
+		wlanhandle,
+		&interfaceGuid,
+		nullptr,
+		dot11_BSS_type_any, 
+		FALSE,
+		nullptr,
+		&pBssList
+	);
 
+	if (result == ERROR_SUCCESS && pBssList != nullptr) {
+
+
+		for (DWORD i = 0; i < pBssList->dwNumberOfItems; i++) {
+			WLAN_BSS_ENTRY bssEntry = pBssList->wlanBssEntries[i];
+
+			std::cout << "-----------------------------------" << std::endl;
+			std::cout << "SSID: ";
+
+
+			if (bssEntry.dot11Ssid.uSSIDLength > 0) {
+				for (DWORD j = 0; j < bssEntry.dot11Ssid.uSSIDLength; j++) {
+					std::cout << bssEntry.dot11Ssid.ucSSID[j];
+				}
+				std::cout << std::endl;
+			}
+			else {
+				std::cout << "<Hidden network>" << std::endl;
+			}
+
+
+			std::cout << "Signal quality: " << bssEntry.lRssi << " dBm" << std::endl;
 		}
- 	}
-	
+
+		std::cout << "-----------------------------------" << std::endl;
+
+		WlanFreeMemory(pBssList);
+		pBssList = nullptr;
+	}
+
 	if (pInterfaceList != nullptr) {
 		WlanFreeMemory(pInterfaceList);
 		pInterfaceList = nullptr;
 	}
 
-	if (wlanhandle != nullptr) {
-		WlanCloseHandle(wlanhandle, nullptr);
-		wlanhandle = nullptr;
-	}
-
 	if (pNetworkList != nullptr) {
 		WlanFreeMemory(pNetworkList);
 		pNetworkList = nullptr;
+	}
+
+	if (wlanhandle != nullptr) {
+		WlanCloseHandle(wlanhandle, nullptr);
+		wlanhandle = nullptr;
 	}
 
 	return 0;
