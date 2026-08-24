@@ -108,8 +108,18 @@ int main()
 				std::cout << "<Hidden network>" << std::endl;
 			}
 
+			std::cout << "BSSID: ";
 
-			std::cout << "Signal quality: " << bssEntry.lRssi << " dBm" << std::endl;
+			for (int j=0; j < 6; j++) {
+				printf("%02X", bssEntry.dot11Bssid[j]);
+
+			if (j < 5) {
+				printf(":");
+			}
+		}
+
+			std::cout << std::endl;
+			std::cout << "RSSI: " << bssEntry.lRssi << " dBm" << std::endl;
 		}
 
 		std::cout << "-----------------------------------" << std::endl;
