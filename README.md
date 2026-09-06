@@ -21,6 +21,8 @@ A C++ application for analyzing nearby Wi-Fi networks on Windows using the Windo
 - [x] Start a WLAN scan with `WlanScan()`
 - [x] Retrieve available networks with `WlanGetAvailableNetworkList()`
 - [x] Display detected network SSIDs
-- [x] Display an estimated RSSI value in dBm
-- [ ] Improve GUI readability and styling
+- [x] Show estimated RSSI value in dBm
+- [ ] Determine WLAN channels
+- [ ] Determine WLAN frequencies in MHz
+
 
